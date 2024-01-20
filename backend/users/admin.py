@@ -1,3 +1,10 @@
-from django.contrib import admin
+from django.contrib.admin import ModelAdmin, register
 
-# Register your models here.
+from .models import CustomUser
+
+# TODO: написать админку и выполнить все по списку из notes.txt!
+
+@register(CustomUser)
+class UserAdmin(ModelAdmin):
+    list_display = ['username', 'first_name', 'last_name', 'email']
+    list_filter = ['email', 'username']
