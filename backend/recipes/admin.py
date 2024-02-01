@@ -1,9 +1,9 @@
 from django.contrib.admin import ModelAdmin, register
 
-from .models import Ingredients
+from .models import Ingredient
 
 
-@register(Ingredients)
+@register(Ingredient)
 class IngredientsAdmin(ModelAdmin):
     list_display = ['name', 'measurement_unit']
     list_filter = ['name']
