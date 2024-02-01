@@ -1,3 +1,9 @@
-from django.contrib import admin
+from django.contrib.admin import ModelAdmin, register
 
-# Register your models here.
+from .models import Ingredients
+
+
+@register(Ingredients)
+class IngredientsAdmin(ModelAdmin):
+    list_display = ['name', 'measurement_unit']
+    list_filter = ['name']
