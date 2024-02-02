@@ -1,5 +1,5 @@
 from django.contrib.auth.models import AbstractUser
-from django.db.models import CharField, EmailField
+from django.db.models import Model, CharField, EmailField, ForeignKey, CASCADE, UniqueConstraint
 
 
 # Мб добавить роли как поле?
@@ -15,3 +15,23 @@ class CustomUser(AbstractUser):
     
     def __str__(self):
         return f'Пользователь {self.username}'
+
+
+class Following(Model):
+    follower = ForeignKey(
+        CustomUser, on_delete=CASCADE, related_name='following', verbose_name='Подписчик'
+    )
+    author = ForeignKey(
+        CustomUser, on_delete=CASCADE, related_name='followers', verbose_name='Автор'
+    )
+    
+    class Meta:
+        constraints = UniqueConstraint(
+            fields=('follower', 'author'),
+            name='unique_subscribe'
+        )
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+    
+    def __str__(self):
+        return f'{self.follower} подписан на {self.author}'
