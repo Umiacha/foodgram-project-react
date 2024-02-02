@@ -1,6 +1,6 @@
-from django.db.models import Model, CharField
+from django.db.models import Model, CharField, SlugField
 
-# Create your models here. Создавай модели и отрабатывай по схеме из notes.txt
+
 class Ingredient(Model):
     name = CharField(max_length=200, verbose_name='Название')
     measurement_unit = CharField(
@@ -15,4 +15,20 @@ class Ingredient(Model):
         return f'{self.name} {self.measurement_unit}'
 
 
-# class Tags()
+class Tag(Model):
+    name = CharField(
+        max_length=200, verbose_name='Название', unique=True
+    )
+    color = CharField(
+        max_length=200, verbose_name='Цвет', unique=True
+    )
+    slug = SlugField(
+        max_length=200, verbose_name='Слаг', unique=True
+    )
+    
+    class Meta:
+        verbose_name = 'Тэг'
+        verbose_name_plural = 'Тэги'
+    
+    def __str__(self):
+        return f'{self.name} {self.slug}'
