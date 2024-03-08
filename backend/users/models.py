@@ -26,10 +26,10 @@ class Following(Model):
     )
     
     class Meta:
-        constraints = UniqueConstraint(
+        constraints = [UniqueConstraint(
             fields=('follower', 'author'),
             name='unique_subscribe'
-        )
+        ),]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
     
