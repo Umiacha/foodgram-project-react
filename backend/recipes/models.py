@@ -1,4 +1,5 @@
 from django.db.models import Model, CharField, SlugField
+from django.core.validators import RegexValidator
 
 
 class Ingredient(Model):
@@ -20,10 +21,10 @@ class Tag(Model):
         max_length=200, verbose_name='Название', unique=True
     )
     color = CharField(
-        max_length=200, verbose_name='Цвет', unique=True
+        max_length=7, verbose_name='Цвет', unique=True
     )
     slug = SlugField(
-        max_length=200, verbose_name='Слаг', unique=True
+        max_length=200, verbose_name='Слаг', unique=True, validators=[RegexValidator(regex='^[-a-zA-Z0-9_]+$')]
     )
     
     class Meta:

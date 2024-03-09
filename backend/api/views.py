@@ -1,14 +1,19 @@
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.filters import SearchFilter
 
-from recipes.models import Ingredient
+from recipes.models import Ingredient, Tag
 
-from .serializers import IngredientSerializer
+from .serializers import IngredientSerializer, TagSerializer
 
 
-class IngredientViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = [SearchFilter]
     search_fields = ['^name']
+
+
+class TagViewSet(ReadOnlyModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
