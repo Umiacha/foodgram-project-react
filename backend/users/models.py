@@ -22,7 +22,7 @@ class Following(Model):
         CustomUser, on_delete=CASCADE, related_name='following', verbose_name='Подписчик'
     )
     author = ForeignKey(
-        CustomUser, on_delete=CASCADE, related_name='followers', verbose_name='Автор'
+        CustomUser, on_delete=CASCADE, related_name='follower', verbose_name='Автор'
     )
     
     class Meta:

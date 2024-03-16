@@ -42,9 +42,11 @@ class Tag(models.Model):
 
 class Recipe(models.Model):
     ingredients = models.ManyToManyField(Ingredient, through='RecipeIngredient', through_fields=('recipe', 'ingredient'), verbose_name='Ингредиенты')
-    tags = models.ManyToManyField(Tag, verbose_name='Теги')  # Maybe it needs to add through=RecipeTag ??
-    image = models.ImageField(verbose_name='Картинка')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipes', verbose_name='Автор публикации')
+    in_favorited = models.ManyToManyField(User, through='Favorite', through_fields=('recipe', 'user'), verbose_name='В избранном', related_name='favorited')
+    in_shopping_cart = models.ManyToManyField(User, through='ShoppingCart', through_fields=('recipe', 'user'), verbose_name='В корзине', related_name='purchase')
+    tags = models.ManyToManyField(Tag, verbose_name='Теги', related_name='recipe')  # Maybe it needs to add through=RecipeTag ??
+    image = models.ImageField(upload_to='recipes/images/', verbose_name='Картинка')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipe', verbose_name='Автор публикации')
     name = models.CharField(max_length=200, verbose_name='Название')
     text = models.TextField(verbose_name='Описание')
     cooking_time = models.IntegerField(validators=[MinValueValidator(limit_value=1)], verbose_name='Время приготовления (в минутах)')
@@ -85,3 +87,18 @@ class Favorite(models.Model):
         ]
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
+
+
+class ShoppingCart(models.Model):
+    """Recipes that users add in their carts.
+    
+    Suggested that user can add recipe only ONCE (pair (user, recipe) is unique)!"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Покупатель')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, verbose_name='В корзине')
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('user', 'recipe'), name='unique_user_recipe')
+        ]
+        verbose_name = 'Рецепт в корзине'
+        verbose_name_plural = 'Рецепты в корзине'
