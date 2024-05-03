@@ -1,6 +1,7 @@
 import base64
 from time import time
 from pprint import pprint  # Для дебага. Удалить как закончу
+from collections import OrderedDict
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
@@ -43,7 +44,7 @@ class RecipeIngredientSerializer(ModelSerializer):
     id = PrimaryKeyRelatedField(source='ingredient', queryset=Ingredient.objects.all())
     name = SlugRelatedField(source='ingredient', slug_field='name', read_only=True)
     measurement_unit = SlugRelatedField(source='ingredient', slug_field='measurement_unit', read_only=True)
-    amount = IntegerField(min_value=1)  # , read_only=True)
+    amount = IntegerField(min_value=1)
     
     class Meta:
         model = RecipeIngredient
@@ -64,31 +65,11 @@ class RecipeSerializer(ModelSerializer):
         model = Recipe
         fields = ['id', 'tags', 'author', 'ingredients', 'is_favorited', 'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time']
     
-    def validate_author(self, value):
-        # value = self.context.get('request').user  # Правильный способ, однако пока что костыль!
-        value = 1
-        return UserSerializer(User.objects.get(pk=value))
-    
-    # def validate_tags(self, value):
-    #     validated_values = []
-    #     for val in value:
-    #         tag = Tag.objects.get(pk=val)
-    #         validated_values.append(TagSerializer(tag).to_representation())
-    #     return validated_values
-    
     def create(self, validated_data):
-        pprint(validated_data)
-        # print(validated_data.get('ingredients').get('ingredient'))
-        # pprint(self.initial_data)
         tags = validated_data.pop('tags')
         ingredients_data = validated_data.pop('ingredients')
-        # recipe_data = validated_data.copy()
-        # recipe_data.pop('ingredients')
-        # recipe = Recipe.objects.create(**recipe_data, author=User.objects.get(pk=1))
-        recipe = Recipe.objects.create(**validated_data, author=User.objects.get(pk=1))
-        # pprint(validated_data)
+        recipe = Recipe.objects.create(**validated_data, author=User.objects.get(pk=1))  # ЗАТЫЧКА!
         for ingredient_data in ingredients_data:
-            # print(ingredient_data.get('ingredient'))
             ingredient = ingredient_data.get('ingredient')
             amount = ingredient_data['amount']
             RecipeIngredient.objects.create(recipe=recipe, ingredient=ingredient, amount=amount)
@@ -120,3 +101,35 @@ class RecipeSerializer(ModelSerializer):
         if not user.is_authenticated:
             return False
         return ShoppingCart.objects.filter(user=user, recipe=obj).exists()
+
+
+class FavoriteSerializer(ModelSerializer):
+    
+    class Meta:
+        model = Favorite
+        fields = ['user', 'recipe']
+    
+    def to_representation(self, instance):  # TODO: протестить.
+        recipe = instance.recipe
+        repr = OrderedDict()
+        repr['id'] = recipe.id
+        repr['name'] = recipe.name
+        repr['image'] = recipe.image
+        repr['cooking_time'] = recipe.cooking_time
+        return repr
+
+
+class ShoppingCartSerializer(ModelSerializer):
+    
+    class Meta:
+        model = ShoppingCart
+        fields = ['user', 'recipe']
+    
+    def to_representation(self, instance):  # TODO: протестить.
+        recipe = instance.recipe
+        repr = OrderedDict()
+        repr['id'] = recipe.id
+        repr['name'] = recipe.name
+        repr['image'] = recipe.image
+        repr['cooking_time'] = recipe.cooking_time
+        return repr
